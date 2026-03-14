@@ -1,5 +1,5 @@
 <template>
-  <div class="match-clear-game h-screen bg-gradient-to-br from-blue-50 to-purple-50 relative overflow-hidden">
+  <div class="match-clear-game h-screen flex flex-col bg-gradient-to-br from-blue-50 to-purple-50 relative overflow-hidden">
     <!-- 背景裝飾 -->
     <div class="absolute inset-0">
       <div class="absolute top-10 left-10 w-20 h-20 bg-pink-200 rounded-full opacity-30 animate-pulse"></div>
@@ -49,29 +49,31 @@
     </div>
 
     <!-- 遊戲區域 -->
-    <div class="flex-1 flex items-center justify-center p-4">
-      <div class="game-grid" :class="gridClass">
+    <div class="flex-1 flex items-center justify-center p-4 relative z-10">
+      <div class="game-grid w-full" :class="gridClass">
         <div
           v-for="(card, index) in cards"
           :key="index"
           :class="[
             'card',
             {
-              'flipped': card.isFlipped,
+              'flipped': card.isFlipped || card.isMatched,
               'matched': card.isMatched,
               'shake': card.isShaking
             }
           ]"
           @click="flipCard(index)"
         >
-          <!-- 卡片正面 -->
-          <div class="card-front">
-            <span class="card-text">{{ card.isFlipped || card.isMatched ? card.content : '' }}</span>
-          </div>
-          
-          <!-- 卡片背面 -->
-          <div class="card-back">
-            <span class="text-4xl">🎴</span>
+          <div class="card-inner">
+            <!-- 卡片背面（默認顯示） -->
+            <div class="card-back">
+              <span class="text-3xl">🎴</span>
+            </div>
+            
+            <!-- 卡片正面（翻轉後顯示） -->
+            <div class="card-front">
+              <span class="card-text">{{ card.content }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -455,66 +457,78 @@ onUnmounted(() => {
 
 <style scoped>
 /* 網格佈局 */
+.game-grid {
+  margin: 0 auto;
+}
+
 .grid-4x4 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(4, 1fr);
   gap: 12px;
-  max-width: 400px;
-  aspect-ratio: 1;
+  max-width: 500px;
+  width: 100%;
 }
 
 .grid-5x4 {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: repeat(4, 1fr);
   gap: 10px;
-  max-width: 500px;
-  aspect-ratio: 5/4;
+  max-width: 600px;
+  width: 100%;
 }
 
 .grid-6x4 {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  grid-template-rows: repeat(4, 1fr);
   gap: 8px;
-  max-width: 600px;
-  aspect-ratio: 6/4;
+  max-width: 700px;
+  width: 100%;
 }
 
 .grid-8x4 {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  grid-template-rows: repeat(4, 1fr);
   gap: 6px;
-  max-width: 800px;
-  aspect-ratio: 8/4;
+  max-width: 900px;
+  width: 100%;
 }
 
 /* 卡片樣式 */
 .card {
   position: relative;
   aspect-ratio: 1;
+  min-width: 60px;
+  min-height: 60px;
   cursor: pointer;
   perspective: 1000px;
-  transform-style: preserve-3d;
-  transition: transform 0.3s ease;
 }
 
-.card:hover {
+.card:hover .card-inner {
   transform: scale(1.05);
 }
 
-.card.flipped {
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.5s ease;
+}
+
+.card.flipped .card-inner {
   transform: rotateY(180deg);
 }
 
-.card.matched {
-  transform: rotateY(180deg) scale(1.1);
-  filter: brightness(1.2);
+.card.matched .card-inner {
+  transform: rotateY(180deg) scale(1.05);
 }
 
-.card.shake {
+.card.matched .card-front {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+}
+
+.card.shake .card-inner {
   animation: shake 0.5s ease-in-out;
 }
 
@@ -524,12 +538,17 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.card-back {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
 }
 
 .card-front {
@@ -538,13 +557,8 @@ onUnmounted(() => {
   transform: rotateY(180deg);
 }
 
-.card-back {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  color: white;
-}
-
 .card-text {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   font-weight: bold;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
