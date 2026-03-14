@@ -20,6 +20,11 @@
         <span>返回</span>
       </button>
 
+      <!-- 關卡標題 -->
+      <div class="flex items-center space-x-2">
+        <h2 class="text-lg font-bold text-white">{{ props.stageConfig.title || props.stageConfig.name_cn || 'BOSS戰鬥' }}</h2>
+      </div>
+
       <!-- 玩家狀態 -->
       <div class="flex items-center space-x-6">
         <!-- 生命值 -->
@@ -265,6 +270,14 @@ const isRotating = ref(false)
 const questionTimer = ref(null)
 const rotationTimer = ref(null)
 
+// 音頻ref
+const attackAudio = ref(null)
+const hitAudio = ref(null)
+const bossAttackAudio = ref(null)
+const victoryAudio = ref(null)
+const defeatAudio = ref(null)
+const wordAudio = ref(null)
+
 // 計算屬性
 const currentStars = computed(() => {
   if (gameResult.value !== 'win') return 0
@@ -448,32 +461,38 @@ function getBossEmoji() {
 
 // 播放單詞發音
 function playWordAudio() {
-  if ($refs.wordAudio && currentQuestionData.value?.audio_url) {
-    $refs.wordAudio.currentTime = 0
-    $refs.wordAudio.play().catch(e => console.log('發音播放失敗:', e))
+  if (wordAudio.value && currentQuestionData.value?.audio_url) {
+    wordAudio.value.currentTime = 0
+    wordAudio.value.play().catch(e => console.log('發音播放失敗:', e))
   }
 }
 
 // 播放音效
 function playSound(type) {
-  if (!gameStore.gameSettings.soundEnabled) return
+  if (!gameStore.gameSettings?.soundEnabled) return
   
   try {
     const audioMap = {
-      attack: 'attackAudio',
-      hit: 'hitAudio',
-      bossAttack: 'bossAttackAudio',
-      victory: 'victoryAudio',
-      defeat: 'defeatAudio'
+      attack: attackAudio,
+      hit: hitAudio,
+      bossAttack: bossAttackAudio,
+      victory: victoryAudio,
+      defeat: defeatAudio
     }
     
-    const audio = audioMap[type]
-    if (audio && $refs[audio]) {
-      $refs[audio].currentTime = 0
-      $refs[audio].play().catch(e => console.log('音效播放失敗:', e))
+    const audio = audioMap[type]?.value
+    if (audio) {
+      // 檢查音頻文件是否可用
+      if (audio.readyState === 0) {
+        console.log(`音效文件 ${type} 不可用，靜默跳過`)
+        return
+      }
+      
+      audio.currentTime = 0
+      audio.play().catch(e => console.log(`音效 ${type} 播放跳過:`, e.message))
     }
   } catch (error) {
-    console.log('音效播放失敗:', error)
+    console.log('音效播放跳過:', error.message)
   }
 }
 

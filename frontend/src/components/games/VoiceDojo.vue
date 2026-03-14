@@ -15,6 +15,11 @@
         <span>返回</span>
       </button>
 
+      <!-- 關卡標題 -->
+      <div class="flex items-center space-x-2">
+        <h2 class="text-lg font-bold text-gray-800">{{ props.stageConfig.title || props.stageConfig.name_cn || '語音道場' }}</h2>
+      </div>
+
       <!-- 道場信息 -->
       <div class="flex items-center space-x-6">
         <!-- 當前進度 -->

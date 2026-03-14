@@ -15,6 +15,11 @@
         <span>返回</span>
       </button>
 
+      <!-- 關卡標題 -->
+      <div class="flex items-center space-x-2">
+        <h2 class="text-lg font-bold text-gray-800">{{ stageConfig.title || stageConfig.name_cn || '假名消消樂' }}</h2>
+      </div>
+
       <!-- 遊戲信息 -->
       <div class="flex items-center space-x-6">
         <!-- 時間 -->
@@ -170,6 +175,11 @@ const finalStars = ref(0)
 const showMatchEffect = ref(false)
 const submitting = ref(false)
 const timer = ref(null)
+
+// 音頻ref
+const flipAudio = ref(null)
+const matchAudio = ref(null)
+const completeAudio = ref(null)
 
 // 計算屬性
 const gridClass = computed(() => {
@@ -366,15 +376,13 @@ function playSound(type) {
   
   try {
     const audioMap = {
-      flip: 'flipAudio',
-      match: 'matchAudio', 
-      complete: 'completeAudio'
+      flip: flipAudio,
+      match: matchAudio, 
+      complete: completeAudio
     }
     
-    const audioRef = audioMap[type]
-    if (audioRef && $refs[audioRef]) {
-      const audio = $refs[audioRef]
-      
+    const audio = audioMap[type]?.value
+    if (audio) {
       // 檢查音頻文件是否可用（避免空文件導致的 416 錯誤）
       if (audio.readyState === 0) {
         // 靜默降級：文件不可用時不播放，避免報錯
