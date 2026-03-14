@@ -397,9 +397,88 @@ async function generateVoiceDojoData(stageConfig) {
 async function generateGrammarRunnerData(stageConfig) {
   const config = typeof stageConfig.game_config === "string" ? JSON.parse(stageConfig.game_config) : stageConfig.game_config;
   
-  // 這裡可以根據關卡配置生成語法練習數據
-  // 暫時返回基礎配置
-  return config;
+  try {
+    // 根據難度獲取語法點
+    const difficulty = config.difficulty || 1;
+    const [grammarPoints] = await db.execute(`
+      SELECT pattern, meaning_cn, examples, category
+      FROM grammar 
+      WHERE difficulty <= ? AND category IN ('basic_sentence', 'verb', 'adjective')
+      ORDER BY difficulty, RAND()
+      LIMIT 5
+    `, [difficulty]);
+    
+    // 為每個語法點生成句子練習
+    const sentences = [];
+    for (const grammar of grammarPoints) {
+      const examples = typeof grammar.examples === 'string' ? JSON.parse(grammar.examples) : grammar.examples;
+      if (examples && examples.length > 0) {
+        // 選擇第一個例句並解析
+        const example = examples[0];
+        const parts = example.split('(');
+        const japanese = parts[0].trim();
+        const chinese = parts[1] ? parts[1].replace(')', '').trim() : '';
+        
+        // 簡單分詞（實際項目中可能需要更複雜的分詞邏輯）
+        const japaneseWords = japanese.split(/[。、\s]+/).filter(word => word.length > 0);
+        
+        // 生成干擾項
+        const distractors = await generateDistractors(japaneseWords, grammar.category);
+        
+        sentences.push({
+          chinese: chinese,
+          japanese_words: japaneseWords,
+          distractors: distractors,
+          grammar_point: grammar.pattern
+        });
+      }
+    }
+    
+    return {
+      sentences: sentences.length > 0 ? sentences : [{
+        chinese: "我在學校學日語",
+        japanese_words: ["私は", "学校で", "日本語を", "勉強します"],
+        distractors: ["勉強しません", "学校に", "日本語が"],
+        grammar_point: "基礎句型"
+      }],
+      difficulty: difficulty,
+      mode: config.mode || 'normal'
+    };
+  } catch (error) {
+    console.error('生成語法跑酷數據失敗:', error);
+    // 返回默認數據
+    return {
+      sentences: [{
+        chinese: "我在學校學日語",
+        japanese_words: ["私は", "学校で", "日本語を", "勉強します"],
+        distractors: ["勉強しません", "学校に", "日本語が"],
+        grammar_point: "基礎句型"
+      }],
+      difficulty: 1,
+      mode: 'normal'
+    };
+  }
+}
+
+/**
+ * 生成語法跑酷的干擾項
+ */
+async function generateDistractors(correctWords, category) {
+  try {
+    // 根據分類獲取干擾詞
+    const [words] = await db.execute(`
+      SELECT japanese FROM word 
+      WHERE category IN ('verb', 'adjective') 
+      AND japanese NOT IN (${correctWords.map(() => '?').join(',')})
+      ORDER BY RAND() 
+      LIMIT 3
+    `, correctWords);
+    
+    return words.map(w => w.japanese);
+  } catch (error) {
+    // 返回默認干擾項
+    return ["間違い", "違う", "だめ"];
+  }
 }
 
 /**
@@ -408,9 +487,138 @@ async function generateGrammarRunnerData(stageConfig) {
 async function generateListeningShooterData(stageConfig) {
   const config = typeof stageConfig.game_config === "string" ? JSON.parse(stageConfig.game_config) : stageConfig.game_config;
   
-  // 這裡可以根據關卡配置生成聽力練習數據
-  // 暫時返回基礎配置
-  return config;
+  try {
+    const scene = config.scene || 'convenience_store';
+    const difficulty = config.difficulty || 1;
+    
+    // 根據場景和難度生成問題
+    const sceneCategories = {
+      'convenience_store': ['food', 'number'],
+      'station': ['place', 'time'], 
+      'restaurant': ['food', 'adjective'],
+      'phone': ['family', 'verb']
+    };
+    
+    const categories = sceneCategories[scene] || ['food', 'verb'];
+    
+    // 獲取相關詞彙和常用短語
+    const [words] = await db.execute(`
+      SELECT japanese, hiragana, chinese, category
+      FROM word 
+      WHERE category IN (${categories.map(() => '?').join(',')})
+      AND difficulty <= ?
+      ORDER BY RAND()
+      LIMIT 8
+    `, [...categories, difficulty]);
+    
+    // 生成聽力問題
+    const questions = [];
+    const commonPhrases = getScenePhrases(scene);
+    
+    // 添加場景常用語
+    commonPhrases.forEach(phrase => {
+      questions.push({
+        audio_url: phrase.audio_url || '',
+        text: phrase.japanese,
+        prompt: '請點擊正確的中文意思',
+        options: [phrase.chinese, ...generateRandomOptions(phrase.chinese, 3)],
+        correct_answer: phrase.chinese,
+        type: 'phrase'
+      });
+    });
+    
+    // 添加詞彙問題
+    words.slice(0, 4).forEach(word => {
+      const wrongOptions = words
+        .filter(w => w.id !== word.id && w.category === word.category)
+        .slice(0, 3)
+        .map(w => w.chinese);
+      
+      questions.push({
+        audio_url: word.audio_url || '',
+        text: word.japanese,
+        prompt: '請點擊正確的中文意思',
+        options: [word.chinese, ...wrongOptions].sort(() => Math.random() - 0.5),
+        correct_answer: word.chinese,
+        type: 'vocabulary'
+      });
+    });
+    
+    return {
+      scene: scene,
+      difficulty: difficulty,
+      questions: questions.slice(0, 6), // 限制為6個問題
+      balloon_count: config.balloon_count || 5,
+      time_per_question: config.time_per_question || 10
+    };
+  } catch (error) {
+    console.error('生成聽力射擊數據失敗:', error);
+    // 返回默認數據
+    return {
+      scene: 'convenience_store',
+      difficulty: 1,
+      questions: [{
+        audio_url: '',
+        text: 'いらっしゃいませ',
+        prompt: '請點擊正確的中文意思',
+        options: ['歡迎光臨', '謝謝', '再見', '不好意思'],
+        correct_answer: '歡迎光臨'
+      }],
+      balloon_count: 5,
+      time_per_question: 10
+    };
+  }
+}
+
+/**
+ * 獲取場景常用短語
+ */
+function getScenePhrases(scene) {
+  const phrases = {
+    'convenience_store': [
+      { japanese: 'いらっしゃいませ', chinese: '歡迎光臨' },
+      { japanese: 'ありがとうございます', chinese: '謝謝' },
+      { japanese: 'レジ袋はいりますか', chinese: '需要塑料袋嗎' }
+    ],
+    'station': [
+      { japanese: 'すみません', chinese: '不好意思' },
+      { japanese: 'どこですか', chinese: '在哪裡' },
+      { japanese: '電車が来ます', chinese: '電車來了' }
+    ],
+    'restaurant': [
+      { japanese: 'いらっしゃいませ', chinese: '歡迎光臨' },
+      { japanese: 'メニューをください', chinese: '請給我菜單' },
+      { japanese: 'おいしいです', chinese: '很好吃' }
+    ],
+    'phone': [
+      { japanese: 'もしもし', chinese: '喂' },
+      { japanese: 'お元気ですか', chinese: '你好嗎' },
+      { japanese: 'また後で', chinese: '待會再聯繫' }
+    ]
+  };
+  
+  return phrases[scene] || phrases['convenience_store'];
+}
+
+/**
+ * 生成隨機干擾選項
+ */
+function generateRandomOptions(correctAnswer, count) {
+  const commonOptions = [
+    '謝謝', '不好意思', '再見', '你好', '是的', '不是', '很好', '不錯', 
+    '美味', '便宜', '貴', '大', '小', '新的', '舊的', '快', '慢'
+  ];
+  
+  const options = commonOptions.filter(option => option !== correctAnswer);
+  const result = [];
+  
+  for (let i = 0; i < count && i < options.length; i++) {
+    const randomIndex = Math.floor(Math.random() * options.length);
+    const option = options.splice(randomIndex, 1)[0];
+    result.push(option);
+  }
+  
+  return result;
 }
 
 /**

@@ -45,8 +45,8 @@ import { useGameStore } from '@/stores/game'
 import MatchClear from '@/components/games/MatchClear.vue'
 import WordBattle from '@/components/games/WordBattle.vue'
 import VoiceDojo from '@/components/games/VoiceDojo.vue'
-// import GrammarRunner from '@/components/games/GrammarRunner.vue'
-// import ListeningShooter from '@/components/games/ListeningShooter.vue'
+import GrammarRunner from '@/components/games/GrammarRunner.vue'
+import ListeningShooter from '@/components/games/ListeningShooter.vue'
 
 // 路由和 store
 const route = useRoute()
@@ -67,8 +67,8 @@ const gameComponentMap = {
   'match_clear': MatchClear,
   'word_battle': WordBattle,
   'voice_dojo': VoiceDojo,
-  // 'grammar_runner': GrammarRunner,
-  // 'listening_shooter': ListeningShooter
+  'grammar_runner': GrammarRunner,
+  'listening_shooter': ListeningShooter
 }
 
 // 計算當前遊戲組件
