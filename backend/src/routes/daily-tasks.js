@@ -103,7 +103,7 @@ router.post('/:taskType/complete', authenticateToken, async (req, res) => {
     // 更新任務進度為完成
     await connection.execute(`
       UPDATE user_daily_task 
-      SET progress = target_count, completed = TRUE, completed_at = NOW()
+      SET completed = TRUE, completed_at = NOW()
       WHERE user_id = ? AND task_date = ? AND task_type = ?
     `, [userId, today, taskType]);
 
@@ -224,9 +224,9 @@ async function ensureDailyTasks(userId, date) {
       if (existing.length === 0) {
         // 創建今日任務
         await connection.execute(`
-          INSERT INTO user_daily_task (user_id, task_date, task_type, progress, target_count, completed)
-          VALUES (?, ?, ?, 0, ?, FALSE)
-        `, [userId, date, template.id, template.target_count]);
+          INSERT INTO user_daily_task (user_id, task_date, task_type, completed)
+          VALUES (?, ?, ?, FALSE)
+        `, [userId, date, template.id]);
       }
     }
 

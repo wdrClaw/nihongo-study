@@ -154,7 +154,8 @@ const router = useRouter()
 
 // 響應式數據
 const gameConfig = ref(props.stageConfig.game_config)
-const gameData = ref(props.stageConfig.game_data)
+// 修復: game_data 可能不存在，用 game_config 作為 fallback
+const gameData = ref(props.stageConfig.game_data || props.stageConfig.game_config)
 const cards = ref([])
 const flippedCards = ref([])
 const score = ref(0)
@@ -359,7 +360,7 @@ function endGame(result) {
 
 // 播放音效
 function playSound(type) {
-  if (!gameStore.gameSettings.soundEnabled) return
+  if (!gameStore.gameSettings?.soundEnabled) return
   
   try {
     const audioMap = {
@@ -368,13 +369,25 @@ function playSound(type) {
       complete: 'completeAudio'
     }
     
-    const audio = audioMap[type]
-    if (audio && $refs[audio]) {
-      $refs[audio].currentTime = 0
-      $refs[audio].play().catch(e => console.log('音效播放失敗:', e))
+    const audioRef = audioMap[type]
+    if (audioRef && $refs[audioRef]) {
+      const audio = $refs[audioRef]
+      
+      // 檢查音頻文件是否可用（避免空文件導致的 416 錯誤）
+      if (audio.readyState === 0) {
+        // 靜默降級：文件不可用時不播放，避免報錯
+        console.log(`音效文件 ${type} 不可用，靜默跳過`)
+        return
+      }
+      
+      audio.currentTime = 0
+      audio.play().catch(e => {
+        // 靜默降級：播放失敗時不顯示錯誤，避免影響遊戲體驗
+        console.log(`音效 ${type} 播放跳過:`, e.message)
+      })
     }
   } catch (error) {
-    console.log('音效播放失敗:', error)
+    console.log('音效播放跳過:', error.message)
   }
 }
 
