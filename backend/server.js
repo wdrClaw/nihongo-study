@@ -13,7 +13,10 @@ import { testDatabaseConnection, closeDatabaseConnections } from './config/datab
 import authRoutes from './src/routes/auth.js';
 import userRoutes from './src/routes/user.js';
 import mapRoutes from './src/routes/map.js';
-// import stageRoutes from './src/routes/stage.js'; // 待創建
+import stageRoutes from './src/routes/stage.js';
+import vocabularyRoutes from './src/routes/vocabulary.js';
+import dailyTasksRoutes from './src/routes/daily-tasks.js';
+import testRoutes from './src/routes/test.js';
 
 // 加載環境變量
 dotenv.config();
@@ -66,7 +69,10 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/map', mapRoutes);
-// app.use('/api/stage', stageRoutes); // 待創建
+app.use('/api/stage', stageRoutes);
+app.use('/api/vocabulary', vocabularyRoutes);
+app.use('/api/daily-tasks', dailyTasksRoutes);
+app.use('/api/test', testRoutes);
 
 // 根路由
 app.get('/', (req, res) => {
