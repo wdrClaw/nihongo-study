@@ -5,6 +5,59 @@ import { authenticateToken } from './auth.js';
 const router = express.Router();
 
 /**
+ * 獲取區域所有關卡列表
+ * GET /api/stage/area/:areaId
+ */
+router.get('/area/:areaId', authenticateToken, async (req, res) => {
+  try {
+    const { areaId } = req.params;
+    const userId = req.userId;
+
+    // 查詢該區域所有關卡
+    const [stages] = await db.execute(
+      'SELECT id, area_id, stage_id, title, description, game_type FROM stage_config WHERE area_id = ? ORDER BY stage_id',
+      [areaId]
+    );
+
+    // 查詢用戶在該區域的進度
+    const [progresses] = await db.execute(
+      'SELECT stage_id, stars, best_score, attempts, completed_at FROM user_stage_progress WHERE user_id = ? AND area_id = ?',
+      [userId, areaId]
+    );
+
+    const progressMap = {};
+    progresses.forEach(p => { progressMap[p.stage_id] = p; });
+
+    // 組裝關卡數據
+    const result = stages.map(stage => {
+      const progress = progressMap[stage.stage_id];
+      // 解鎖邏輯：第1關始終解鎖，後續關需要前一關完成
+      let unlocked = stage.stage_id === 1;
+      if (stage.stage_id > 1) {
+        const prevProgress = progressMap[stage.stage_id - 1];
+        unlocked = prevProgress && prevProgress.stars > 0;
+      }
+      return {
+        stage_id: stage.stage_id,
+        name_cn: stage.title,
+        description_cn: stage.description || '',
+        game_type: stage.game_type,
+        unlocked,
+        stars: progress?.stars || 0,
+        best_score: progress?.best_score || 0,
+        attempts: progress?.attempts || 0,
+        completed_at: progress?.completed_at || null
+      };
+    });
+
+    res.json({ success: true, stages: result });
+  } catch (error) {
+    console.error('獲取區域關卡列表失敗:', error);
+    res.status(500).json({ success: false, message: '伺服器內部錯誤' });
+  }
+});
+
+/**
  * 獲取關卡配置
  * GET /api/stage/:areaId/:stageId
  */

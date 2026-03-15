@@ -275,55 +275,29 @@ function goBack() {
   router.push('/game/map')
 }
 
-// 加載關卡列表
+// 加載關卡列表（從後端API獲取）
 async function loadStages() {
   try {
     loading.value = true
     
-    // 模擬關卡數據（實際應從 API 獲取）
-    const mockStages = []
-    
-    // 根據區域生成不同的關卡
-    if (props.areaId == 1) {
-      // 五十音島
-      mockStages.push(
-        { stage_id: 1, name_cn: '假名入門', description_cn: '學習あいうえお五個基礎假名', game_type: 'match_clear', unlocked: true, stars: 0, best_score: 0 },
-        { stage_id: 2, name_cn: '基音之舞', description_cn: '掌握か行假名', game_type: 'match_clear', unlocked: false, stars: 0, best_score: 0 },
-        { stage_id: 3, name_cn: '清音挑戰', description_cn: '學習さ行和た行', game_type: 'match_clear', unlocked: false, stars: 0, best_score: 0 },
-        { stage_id: 4, name_cn: '初音試煉', description_cn: '第一次語音練習', game_type: 'voice_dojo', unlocked: false, stars: 0, best_score: 0 },
-        { stage_id: 5, name_cn: '假名大會戰', description_cn: '平假名片假名配對', game_type: 'match_clear', unlocked: false, stars: 0, best_score: 0 },
-        { stage_id: 6, name_cn: '迷路貓救援', description_cn: '幫助迷路的小貓回家', game_type: 'word_battle', unlocked: false, stars: 0, best_score: 0 },
-        { stage_id: 7, name_cn: '五十音終極試煉', description_cn: '混合配對大挑戰', game_type: 'match_clear', unlocked: false, stars: 0, best_score: 0 }
-      )
-    } else if (props.areaId == 2) {
-      // 單詞村
-      mockStages.push(
-        { stage_id: 1, name_cn: '動物園大冒險', description_cn: '學習動物類單詞', game_type: 'word_battle', unlocked: false, stars: 0, best_score: 0 },
-        { stage_id: 2, name_cn: '美食天堂', description_cn: '掌握食物詞彙', game_type: 'word_battle', unlocked: false, stars: 0, best_score: 0 },
-        { stage_id: 3, name_cn: '家族聚會', description_cn: '學習家庭成員稱呼', game_type: 'word_battle', unlocked: false, stars: 0, best_score: 0 },
-        { stage_id: 4, name_cn: '彩色世界', description_cn: '認識顏色詞彙', game_type: 'word_battle', unlocked: false, stars: 0, best_score: 0 },
-        { stage_id: 5, name_cn: '壽司大將挑戰', description_cn: '與壽司大將的決戰', game_type: 'word_battle', unlocked: false, stars: 0, best_score: 0 }
-      )
-    }
-    
-    // 從 store 獲取用戶進度並更新關卡狀態
-    await gameStore.loadMapProgress()
-    
-    const userProgress = gameStore.mapProgress[props.areaId] || {}
-    
-    stages.value = mockStages.map(stage => {
-      const progress = userProgress[stage.stage_id]
-      return {
-        ...stage,
-        unlocked: gameStore.getStageUnlockStatus(props.areaId, stage.stage_id),
-        stars: progress?.stars || 0,
-        best_score: progress?.best_score || 0
-      }
+    const token = localStorage.getItem('token')
+    const response = await fetch(`http://localhost:3002/api/stage/area/${props.areaId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
     })
+    const data = await response.json()
+    
+    if (data.success && data.stages) {
+      stages.value = data.stages
+    } else {
+      // API 失敗時的後備方案
+      console.warn('從API獲取關卡失敗，使用空列表')
+      stages.value = []
+    }
     
   } catch (error) {
     console.error('加載關卡失敗:', error)
     gameStore.setError('加載關卡失敗')
+    stages.value = []
   } finally {
     loading.value = false
   }
