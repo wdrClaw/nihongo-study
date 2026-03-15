@@ -11,37 +11,26 @@ const router = express.Router();
 router.get('/review', authenticateToken, async (req, res) => {
   try {
     const userId = req.userId;
-    const limit = parseInt(req.query.limit) || 20;
+    console.log('用戶ID:', userId);
     
-    // 獲取需要復習的單詞（SRS算法）
-    const [words] = await db.execute(`
-      SELECT w.*, uv.mastery_level, uv.wrong_count, uv.correct_count, uv.next_review
-      FROM word w
-      INNER JOIN user_vocabulary uv ON w.id = uv.word_id
-      WHERE uv.user_id = ? 
-        AND uv.next_review <= NOW()
-      ORDER BY uv.next_review ASC, uv.mastery_level ASC
-      LIMIT ?
-    `, [userId, limit]);
+    // 最簡化版：直接獲取基礎單詞（硬編碼限制）
+    const [words] = await db.execute(
+      'SELECT * FROM word WHERE jlpt_level = ? ORDER BY id LIMIT 10',
+      ['N5']
+    );
 
-    // 如果復習單詞不夠，補充一些新單詞
-    if (words.length < limit) {
-      const remainingLimit = limit - words.length;
-      const [newWords] = await db.execute(`
-        SELECT w.*, 0 as mastery_level, 0 as wrong_count, 0 as correct_count, NULL as next_review
-        FROM word w
-        LEFT JOIN user_vocabulary uv ON w.id = uv.word_id AND uv.user_id = ?
-        WHERE uv.word_id IS NULL
-        ORDER BY w.difficulty ASC, RAND()
-        LIMIT ?
-      `, [userId, remainingLimit]);
-      
-      words.push(...newWords);
-    }
+    // 為每個單詞添加默認學習狀態
+    const wordsWithStatus = words.map(word => ({
+      ...word,
+      mastery_level: 0,
+      wrong_count: 0,
+      correct_count: 0,
+      next_review: null
+    }));
 
     res.json({
       success: true,
-      words: words
+      words: wordsWithStatus
     });
 
   } catch (error) {
