@@ -7,31 +7,31 @@
 
 /* === 游戏UI设计系统 === */
 
-/* CSS 变量 - 统一色彩和设计系统 */
+/* CSS 变量 - iPhone 13 Pro Max 移动端优化色彩系统 */
 :root {
-  /* 主色调 - 日式美学 */
-  --game-primary: #FFB7C5;        /* 櫻花粉 */
-  --game-primary-dark: #FF5694;   /* 深樱花粉 */
-  --game-secondary: #3F51B5;      /* 靛藍 */
-  --game-secondary-dark: #303F9F; /* 深靛藍 */
-  --game-accent: #FFD700;         /* 金色 */
+  /* 主色调 - 符合任务要求 */
+  --game-primary: #FF6B9D;        /* 樱花粉主色 */
+  --game-primary-dark: #E5408A;   /* 深樱花粉 */
+  --game-secondary: #6C5CE7;      /* 靛蓝紫主色 */
+  --game-secondary-dark: #5D4ED4; /* 深靛蓝紫 */
+  --game-accent: #FFD93D;         /* 金色主色 */
   --game-accent-dark: #FFC107;    /* 深金色 */
   
-  /* 背景色 - 层次感 */
-  --bg-primary: #FAFAFA;          /* 主背景 */
-  --bg-secondary: #F5F5F5;        /* 次背景 */
-  --bg-glass: rgba(255, 255, 255, 0.25); /* 毛玻璃 */
+  /* 背景色 - 移动端层次感 */
+  --bg-primary: #F8F6FF;          /* 淡紫白背景 */
+  --bg-secondary: #FFF5F7;        /* 淡粉白背景 */
+  --bg-glass: rgba(255, 255, 255, 0.95); /* 毛玻璃 */
   
-  /* 文字色 - 可读性优化 */
-  --text-primary: #2D3748;        /* 主文字 */
-  --text-secondary: #718096;      /* 次文字 */
+  /* 文字色 - 高对比度可读性 */
+  --text-primary: #2D3436;        /* 主文字 */
+  --text-secondary: #636E72;      /* 次文字 */
   --text-light: #A0AEC0;          /* 淡文字 */
   
-  /* 状态色 - 游戏反馈 */
-  --color-success: #48BB78;       /* 成功绿 */
-  --color-warning: #ED8936;       /* 警告橙 */
-  --color-error: #F56565;         /* 错误红 */
-  --color-info: #4299E1;          /* 信息蓝 */
+  /* 状态色 - 游戏反馈优化 */
+  --color-success: #00B894;       /* 成功色 */
+  --color-warning: #FF8F00;       /* 警告色 */
+  --color-error: #FF6B6B;         /* 错误色 */
+  --color-info: #4299E1;          /* 信息色 */
   
   /* 阴影系统 - 立体感 */
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06);
@@ -468,6 +468,17 @@ body {
     opacity: 0.3; 
     transform: scale(1.2); 
   }
+}
+
+/* === 移动端专用工具类 === */
+
+/* iPhone 13 Pro Max 触控目标优化 */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* === 工具类 === */
