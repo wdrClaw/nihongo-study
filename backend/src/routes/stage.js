@@ -259,6 +259,34 @@ router.post('/:areaId/:stageId/complete', authenticateToken, async (req, res) =>
       [expGained, coinsGained, userId]
     );
 
+    // 檢查並執行升級
+    const [userRows] = await connection.execute('SELECT exp, level FROM user WHERE id = ?', [userId]);
+    if (userRows.length > 0) {
+      let { exp: currentExp, level: currentLevel } = userRows[0];
+      let leveled = false;
+      // 循環升級（可能一次獲得大量經驗跳多級）
+      while (currentLevel < 60) {
+        let expForNext;
+        if (currentLevel < 10) expForNext = currentLevel * 100;
+        else if (currentLevel < 25) expForNext = 1000 + (currentLevel - 10) * 150;
+        else if (currentLevel < 40) expForNext = 3100 + (currentLevel - 25) * 200;
+        else if (currentLevel < 50) expForNext = 6100 + (currentLevel - 40) * 250;
+        else if (currentLevel < 58) expForNext = 8600 + (currentLevel - 50) * 300;
+        else expForNext = 11000 + (currentLevel - 58) * 500;
+        
+        if (currentExp >= expForNext) {
+          currentLevel++;
+          leveled = true;
+        } else {
+          break;
+        }
+      }
+      if (leveled) {
+        await connection.execute('UPDATE user SET level = ? WHERE id = ?', [currentLevel, userId]);
+        console.log(`用戶 ${userId} 升級到 Lv.${currentLevel}`);
+      }
+    }
+
     // 更新每日任務進度
     await updateDailyTaskProgress(connection, userId, 'complete_stage', 1);
 

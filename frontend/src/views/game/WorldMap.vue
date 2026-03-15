@@ -205,7 +205,7 @@
 
           <!-- 讀解森林 -->
           <div class="area-node" :class="{ unlocked: isAreaUnlocked(5), current: currentArea === 5 }"
-               style="position: absolute; right: 100px; bottom: 600px;"
+               style="position: absolute; right: 180px; bottom: 600px;"
                @click="selectArea(5)">
             <div class="area-card">
               <div class="area-icon text-6xl mb-3">📖</div>
@@ -224,7 +224,7 @@
 
           <!-- N5試煉塔 -->
           <div class="area-node" :class="{ unlocked: isAreaUnlocked(6), current: currentArea === 6 }"
-               style="position: absolute; right: 50px; top: 50px;"
+               style="position: absolute; right: 50px; top: 30px;"
                @click="selectArea(6)">
             <div class="area-card final-area">
               <div class="area-icon text-6xl mb-3">🏆</div>
@@ -323,14 +323,12 @@ function openProfile() {
 
 // 打開商店
 function openShop() {
-  // 暫未實現
-  gameStore.setError('商店功能即將上線')
+  alert('🏪 商店功能即將上線，敬請期待！')
 }
 
 // 打開設置
 function openSettings() {
-  // 暫未實現
-  gameStore.setError('設置功能即將上線')
+  alert('⚙️ 設置功能即將上線，敬請期待！')
 }
 
 // 生命週期
