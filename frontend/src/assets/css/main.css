@@ -2,61 +2,329 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-/* Nihongo Quest 自定義樣式 */
+/* 导入 Google Fonts - 游戏级字体系统 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Poppins:wght@300;400;500;600;700;800;900&family=ZCOOL+QingKe+HuangYou&display=swap');
 
-/* 全局字體設定 */
+/* === 游戏UI设计系统 === */
+
+/* CSS 变量 - 统一色彩和设计系统 */
+:root {
+  /* 主色调 - 日式美学 */
+  --game-primary: #FFB7C5;        /* 櫻花粉 */
+  --game-primary-dark: #FF5694;   /* 深樱花粉 */
+  --game-secondary: #3F51B5;      /* 靛藍 */
+  --game-secondary-dark: #303F9F; /* 深靛藍 */
+  --game-accent: #FFD700;         /* 金色 */
+  --game-accent-dark: #FFC107;    /* 深金色 */
+  
+  /* 背景色 - 层次感 */
+  --bg-primary: #FAFAFA;          /* 主背景 */
+  --bg-secondary: #F5F5F5;        /* 次背景 */
+  --bg-glass: rgba(255, 255, 255, 0.25); /* 毛玻璃 */
+  
+  /* 文字色 - 可读性优化 */
+  --text-primary: #2D3748;        /* 主文字 */
+  --text-secondary: #718096;      /* 次文字 */
+  --text-light: #A0AEC0;          /* 淡文字 */
+  
+  /* 状态色 - 游戏反馈 */
+  --color-success: #48BB78;       /* 成功绿 */
+  --color-warning: #ED8936;       /* 警告橙 */
+  --color-error: #F56565;         /* 错误红 */
+  --color-info: #4299E1;          /* 信息蓝 */
+  
+  /* 阴影系统 - 立体感 */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.2);
+  --shadow-glow: 0 0 20px rgba(255, 183, 197, 0.3);
+  
+  /* 动画缓动 - 自然运动 */
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-elastic: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* 全局字体设定 - 多语言优化 */
 body {
-  @apply font-sans-cn;
+  font-family: 'Poppins', 'Noto Sans JP', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
   font-feature-settings: 'kern' 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: var(--text-primary);
+  line-height: 1.6;
+  background: var(--bg-primary);
 }
 
-/* 日語文字專用類 */
+/* === 字体类 === */
 .text-jp {
-  @apply font-sans-jp;
+  font-family: 'Noto Sans JP', sans-serif;
 }
 
-/* 遊戲UI組件 */
+.text-title-game {
+  font-family: 'ZCOOL QingKe HuangYou', 'Poppins', sans-serif;
+  font-weight: 700;
+}
+
+.text-pixel {
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+}
+
+/* === 游戏UI组件系统 === */
+
+/* 主要按钮 - 发光效果 */
 .game-button {
-  @apply bg-gradient-to-r from-primary-500 to-primary-600 text-white font-bold py-3 px-6 rounded-lg shadow-button hover:shadow-lg transform hover:scale-105 transition-all duration-300 select-none;
+  position: relative;
+  background: linear-gradient(135deg, var(--game-primary), var(--game-primary-dark));
+  color: white;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: none;
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s var(--ease-smooth);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  user-select: none;
+}
+
+.game-button:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+  background: linear-gradient(135deg, var(--game-primary-dark), var(--game-primary));
 }
 
 .game-button:active {
-  @apply transform scale-95;
+  transform: translateY(0) scale(0.98);
+  transition: all 0.1s var(--ease-smooth);
 }
 
+/* 按钮发光脉冲动画 */
+.game-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.game-button:hover::before {
+  left: 100%;
+}
+
+/* 次要按钮 */
+.game-button-secondary {
+  background: transparent;
+  color: var(--game-primary);
+  border: 2px solid var(--game-primary);
+  padding: 10px 22px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.3s var(--ease-smooth);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.game-button-secondary:hover {
+  background: var(--game-primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* 游戏卡片 - 3D立体效果 */
 .game-card {
-  @apply bg-white rounded-xl shadow-card border border-gray-100 overflow-hidden;
+  background: white;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 183, 197, 0.2);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  transition: all 0.3s var(--ease-smooth);
+  position: relative;
 }
 
+.game-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+}
+
+.game-card-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.3s var(--ease-smooth);
+}
+
+.game-card-3d:hover {
+  transform: perspective(600px) rotateX(5deg) rotateY(5deg) translateY(-8px);
+}
+
+/* 输入框 - 发光边框 */
 .game-input {
-  @apply w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:outline-none transition-colors;
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #E2E8F0;
+  border-radius: 12px;
+  font-size: 16px;
+  background: white;
+  transition: all 0.3s var(--ease-smooth);
+  outline: none;
 }
 
-/* 動畫類 */
+.game-input:focus {
+  border-color: var(--game-primary);
+  box-shadow: 0 0 0 3px rgba(255, 183, 197, 0.1);
+  transform: scale(1.02);
+}
+
+/* 毛玻璃效果 */
+.glass-card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+}
+
+/* === 动画系统 === */
+
+/* 基础动画 */
 .animate-bounce-slow {
-  animation: bounce 2s infinite;
+  animation: bounce-game 2s infinite;
 }
 
-.animate-pulse-slow {
-  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
 }
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
 }
 
+.animate-shake {
+  animation: shake 0.6s ease-in-out;
+}
+
+.animate-typewriter {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typewriter 2s steps(40) forwards, blink-caret 0.75s step-end infinite;
+  border-right: 3px solid var(--game-primary);
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s var(--ease-smooth) forwards;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.5s var(--ease-bounce) forwards;
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.6s var(--ease-smooth) forwards;
+  opacity: 0;
+  transform: translateX(-50px);
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.6s var(--ease-smooth) forwards;
+  opacity: 0;
+  transform: translateX(50px);
+}
+
+/* 动画延迟类 */
+.animate-delay-100 { animation-delay: 0.1s; }
+.animate-delay-200 { animation-delay: 0.2s; }
+.animate-delay-300 { animation-delay: 0.3s; }
+.animate-delay-400 { animation-delay: 0.4s; }
+.animate-delay-500 { animation-delay: 0.5s; }
+
+/* 关键帧动画 */
 @keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes bounce-game {
+  0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
+  40%, 43% { transform: translateY(-15px); }
+  70% { transform: translateY(-8px); }
+  90% { transform: translateY(-3px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { 
+    box-shadow: 0 0 5px var(--game-primary);
+    transform: scale(1); 
   }
-  50% {
-    transform: translateY(-10px);
+  50% { 
+    box-shadow: 0 0 20px var(--game-primary), 0 0 30px var(--game-primary);
+    transform: scale(1.05); 
   }
 }
 
-/* 遊戲特效 */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+  20%, 40%, 60%, 80% { transform: translateX(8px); }
+}
+
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent; }
+  50% { border-color: var(--game-primary); }
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInLeft {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* === 游戏特效系统 === */
+
+/* 粒子爆炸效果 */
 .particle-burst {
   position: relative;
   overflow: hidden;
@@ -69,11 +337,15 @@ body {
   left: 50%;
   width: 100px;
   height: 100px;
-  background: radial-gradient(circle, #FFD700 0%, transparent 70%);
+  background: radial-gradient(circle, var(--game-accent) 0%, transparent 70%);
   border-radius: 50%;
   transform: translate(-50%, -50%) scale(0);
   opacity: 0;
-  animation: burst 0.5s ease-out;
+  pointer-events: none;
+}
+
+.particle-burst.active::after {
+  animation: burst 0.6s ease-out;
 }
 
 @keyframes burst {
@@ -82,32 +354,181 @@ body {
     opacity: 1;
   }
   100% {
-    transform: translate(-50%, -50%) scale(2);
+    transform: translate(-50%, -50%) scale(3);
     opacity: 0;
   }
 }
 
-/* 響應式文字大小 */
+/* 日式背景装饰 */
+.bg-japanese {
+  position: relative;
+  background: linear-gradient(135deg, #FFE5F1 0%, #E8F4FD 50%, #FFF8E1 100%);
+  overflow: hidden;
+}
+
+/* 樱花飘落动画背景 */
+.bg-sakura {
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-sakura::before {
+  content: '';
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  width: 120%;
+  height: 120%;
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, rgba(255, 183, 197, 0.3), transparent),
+    radial-gradient(2px 2px at 40px 70px, rgba(255, 183, 197, 0.4), transparent),
+    radial-gradient(1px 1px at 90px 40px, rgba(255, 183, 197, 0.3), transparent),
+    radial-gradient(1px 1px at 130px 80px, rgba(255, 183, 197, 0.4), transparent),
+    radial-gradient(2px 2px at 160px 30px, rgba(255, 183, 197, 0.3), transparent);
+  background-repeat: repeat;
+  background-size: 200px 100px;
+  animation: sakura-fall 20s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes sakura-fall {
+  to {
+    transform: translateY(100vh) rotateZ(360deg);
+  }
+}
+
+/* 波浪装饰 */
+.wave-decoration {
+  position: relative;
+}
+
+.wave-decoration::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120'%3E%3Cpath d='M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z' fill='%23FFB7C5' opacity='0.3'%3E%3C/path%3E%3C/svg%3E") repeat-x;
+  background-size: 1200px 60px;
+  animation: wave-move 3s ease-in-out infinite;
+}
+
+@keyframes wave-move {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-25px); }
+}
+
+/* 发光路径效果 */
+.glow-path {
+  position: relative;
+  background: linear-gradient(90deg, transparent 0%, var(--game-primary) 50%, transparent 100%);
+  height: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.glow-path::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, white, transparent);
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* 星星闪烁效果 */
+.star-sparkle {
+  position: relative;
+}
+
+.star-sparkle::after {
+  content: '✨';
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  font-size: 16px;
+  animation: sparkle 1.5s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+  50% { 
+    opacity: 0.3; 
+    transform: scale(1.2); 
+  }
+}
+
+/* === 工具类 === */
+
+/* 响应式文字 */
 .text-responsive {
-  @apply text-sm sm:text-base md:text-lg;
+  font-size: clamp(14px, 2.5vw, 18px);
+  line-height: 1.5;
 }
 
 .text-title {
-  @apply text-xl sm:text-2xl md:text-3xl font-bold;
+  font-size: clamp(24px, 5vw, 48px);
+  font-weight: 700;
+  line-height: 1.2;
 }
 
-/* 遊戲進度條 */
+.text-subtitle {
+  font-size: clamp(18px, 3.5vw, 24px);
+  font-weight: 600;
+}
+
+/* 游戏进度条 */
 .progress-bar {
-  @apply w-full bg-gray-200 rounded-full h-2;
+  width: 100%;
+  height: 8px;
+  background: #E2E8F0;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
 }
 
 .progress-fill {
-  @apply bg-gradient-to-r from-primary-500 to-accent-500 h-2 rounded-full transition-all duration-500;
+  height: 100%;
+  background: linear-gradient(90deg, var(--game-primary), var(--game-accent));
+  border-radius: 20px;
+  transition: width 0.8s var(--ease-smooth);
+  position: relative;
+  overflow: hidden;
 }
 
-/* 卡片翻轉動畫 */
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: progress-shine 2s ease-in-out infinite;
+}
+
+@keyframes progress-shine {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* 卡片翻转动画 - 优化版 */
 .flip-card {
   perspective: 1000px;
+  width: 100%;
+  height: 100%;
 }
 
 .flip-card-inner {
@@ -115,7 +536,7 @@ body {
   width: 100%;
   height: 100%;
   text-align: center;
-  transition: transform 0.6s;
+  transition: transform 0.6s var(--ease-smooth);
   transform-style: preserve-3d;
 }
 
@@ -128,9 +549,108 @@ body {
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
-  border-radius: 12px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+}
+
+.flip-card-front {
+  background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+  border: 2px solid rgba(255, 183, 197, 0.2);
 }
 
 .flip-card-back {
+  background: linear-gradient(135deg, var(--game-primary), var(--game-primary-dark));
+  color: white;
   transform: rotateY(180deg);
+}
+
+/* 微交互 - 全局点击效果 */
+.interactive {
+  cursor: pointer;
+  transition: all 0.2s var(--ease-smooth);
+  user-select: none;
+}
+
+.interactive:hover {
+  transform: scale(1.02);
+}
+
+.interactive:active {
+  transform: scale(0.98);
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--game-primary), var(--game-primary-dark));
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, var(--game-primary-dark), var(--game-secondary));
+}
+
+/* Firefox 滚动条 */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--game-primary) #f1f1f1;
+}
+
+/* 加载动画 */
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid var(--game-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 路由过渡动画 */
+.route-enter-active, .route-leave-active {
+  transition: all 0.4s var(--ease-smooth);
+}
+
+.route-enter-from {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.route-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  .game-button {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+  
+  .game-card {
+    border-radius: 12px;
+  }
+  
+  .game-card-3d:hover {
+    transform: perspective(400px) rotateX(3deg) rotateY(3deg) translateY(-4px);
+  }
 }
