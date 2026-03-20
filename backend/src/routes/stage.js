@@ -155,6 +155,14 @@ router.get('/:areaId/:stageId', authenticateToken, async (req, res) => {
         case 'listening_shooter':
           gameData = await generateListeningShooterData(stageConfig);
           break;
+        case 'kana_crush':
+        case 'vocab_crush':
+        case 'vocab_rain':
+          // KanaCrush/VocabCrush 数据全在前端，后端只传 config_data
+          gameData = typeof stageConfig.config_data === 'string' 
+            ? JSON.parse(stageConfig.config_data) 
+            : (stageConfig.config_data || {});
+          break;
         default:
           return res.status(400).json({
             success: false,

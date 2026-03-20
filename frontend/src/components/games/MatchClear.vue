@@ -32,12 +32,17 @@
             <span class="text-secondary-500 font-bold">{{ flipCount }}</span>
             <span class="text-text-secondary">翻牌</span>
           </div>
+          <!-- 连击 -->
+          <div v-if="combo > 1" class="flex flex-col items-center animate-bounce">
+            <span class="text-accent-600 font-bold">x{{ combo }}</span>
+            <span class="text-accent-500 text-[10px]">连击!</span>
+          </div>
           <!-- 星级 -->
           <div class="flex items-center space-x-1">
             <span v-for="i in 3" :key="i" 
-                  :class="i <= currentStars ? 'text-accent-500' : 'text-gray-300'"
-                  class="text-sm">
-              ⭐
+                  :class="i <= currentStars ? 'text-yellow-400' : 'text-gray-300'"
+                  class="text-base">
+              ★
             </span>
           </div>
         </div>
@@ -110,9 +115,9 @@
         <!-- 星级显示 -->
         <div class="flex justify-center items-center space-x-1 mb-4">
           <span v-for="i in 3" :key="i" 
-                :class="i <= finalStars ? 'text-accent-500' : 'text-gray-300'"
-                class="text-3xl">
-            ⭐
+                :class="i <= finalStars ? 'text-yellow-400 drop-shadow' : 'text-gray-300'"
+                class="text-4xl">
+            ★
           </span>
         </div>
         
@@ -179,16 +184,17 @@ const timer = ref(null)
 // 计算属性
 const currentStars = computed(() => {
   const totalCards = cards.value.length
+  const totalPairs = totalCards / 2
   const targetFlips = {
-    3: totalCards * 1.2,  // 3星：很少翻牌
-    2: totalCards * 1.6,  // 2星：较少翻牌
-    1: totalCards * 2.0   // 1星：标准翻牌
+    3: totalPairs * 2.5,   // 3星：20次以内（8对×2.5）
+    2: totalPairs * 3.5,   // 2星：28次以内
+    1: totalPairs * 5.0    // 1星：40次以内
   }
   
   if (flipCount.value <= targetFlips[3]) return 3
   if (flipCount.value <= targetFlips[2]) return 2
-  if (flipCount.value <= targetFlips[1]) return 1
-  return 0
+  // 通关就至少1星（保证能解锁下一关）
+  return 1
 })
 
 // 初始化游戏
@@ -209,10 +215,17 @@ function initializeGame() {
   const allCards = []
   
   // 创建卡片对（前8对，16张卡片）
+  // 自适应配对模式：
+  //   有katakana → 平假名 ↔ 片假名（如：さ ↔ サ）
+  //   无katakana → 平假名 ↔ 罗马音（如：あ ↔ a）
   pairs.slice(0, 8).forEach((pair, index) => {
+    const hasKatakana = !!pair.katakana
+    const secondContent = hasKatakana ? pair.katakana : pair.romaji
+    const secondType = hasKatakana ? 'katakana' : 'romaji'
+    
     allCards.push(
-      { id: index * 2, content: pair.hiragana, type: 'hiragana', pairId: index, isFlipped: false, isMatched: false, isShaking: false },
-      { id: index * 2 + 1, content: pair.katakana, type: 'katakana', pairId: index, isFlipped: false, isMatched: false, isShaking: false }
+      { id: index * 2, content: pair.hiragana, pronounce: pair.hiragana, type: 'hiragana', pairId: index, isFlipped: false, isMatched: false, isShaking: false },
+      { id: index * 2 + 1, content: secondContent, pronounce: pair.hiragana, type: secondType, pairId: index, isFlipped: false, isMatched: false, isShaking: false }
     )
   })
   
@@ -223,18 +236,31 @@ function initializeGame() {
   flippedCards.value = []
   score.value = 0
   flipCount.value = 0
+  combo.value = 0
   gameEnded.value = false
+  isPreview.value = true
   timeLeft.value = totalTime.value
   
-  console.log('🎴 消消乐游戏已初始化 - 移动端优化版')
+  // 开局预览：所有卡片亮起3秒
+  cards.value.forEach(c => c.isFlipped = true)
+  setTimeout(() => {
+    cards.value.forEach(c => { if (!c.isMatched) c.isFlipped = false })
+    isPreview.value = false
+    startTimer()
+  }, 3000)
+  
+  console.log('🎴 消消乐 - 3秒预览后开始')
 }
+
+const combo = ref(0)
+const isPreview = ref(true)
 
 // 翻牌逻辑
 function flipCard(index) {
   const card = cards.value[index]
   
-  // 检查是否可以翻牌
-  if (card.isFlipped || card.isMatched || flippedCards.value.length >= 2 || gameEnded.value) {
+  // 预览期间 / 已翻 / 已匹配 / 正在判定 / 游戏结束 → 忽略
+  if (isPreview.value || card.isFlipped || card.isMatched || flippedCards.value.length >= 2 || gameEnded.value) {
     return
   }
   
@@ -243,11 +269,12 @@ function flipCard(index) {
   flippedCards.value.push(index)
   flipCount.value++
   
-  // 检查是否翻了两张牌
+  // 朗读假名
+  speakKana(card.pronounce || card.content)
+  
+  // 翻了两张 → 立刻判定（不等600ms）
   if (flippedCards.value.length === 2) {
-    setTimeout(() => {
-      checkMatch()
-    }, 600)
+    setTimeout(() => checkMatch(), 400)
   }
 }
 
@@ -258,39 +285,41 @@ function checkMatch() {
   const card2 = cards.value[index2]
   
   if (card1.pairId === card2.pairId) {
-    // 匹配成功
+    // ✅ 匹配成功
     card1.isMatched = true
     card2.isMatched = true
+    combo.value++
     
-    // 计分
-    score.value += 100
+    // 连击加分：基础100 + 连击奖励
+    const comboBonus = Math.min(combo.value - 1, 5) * 20
+    score.value += 100 + comboBonus
     
-    // 显示匹配效果
+    // 匹配效果
     showMatchEffect.value = true
-    setTimeout(() => {
-      showMatchEffect.value = false
-    }, 800)
+    setTimeout(() => { showMatchEffect.value = false }, 600)
     
-    // 检查是否全部完成
-    if (cards.value.every(card => card.isMatched)) {
-      setTimeout(() => {
-        endGame('win')
-      }, 500)
+    // 立刻允许继续翻牌
+    flippedCards.value = []
+    
+    // 全部完成？
+    if (cards.value.every(c => c.isMatched)) {
+      setTimeout(() => endGame('win'), 500)
     }
   } else {
-    // 匹配失败 - 震动效果
+    // ❌ 匹配失败
+    combo.value = 0
     card1.isShaking = true
     card2.isShaking = true
     
+    // 显示1.2秒让玩家记住位置，然后翻回
     setTimeout(() => {
       card1.isFlipped = false
       card2.isFlipped = false
       card1.isShaking = false
       card2.isShaking = false
-    }, 800)
+      flippedCards.value = []
+    }, 1200)
   }
-  
-  flippedCards.value = []
 }
 
 // 结束游戏
@@ -306,6 +335,19 @@ function endGame(result) {
 }
 
 // 重新开始
+// 开始计时
+function startTimer() {
+  if (timer.value) clearInterval(timer.value)
+  timer.value = setInterval(() => {
+    timeLeft.value--
+    if (timeLeft.value <= 0) {
+      clearInterval(timer.value)
+      timer.value = null
+      endGame('timeout')
+    }
+  }, 1000)
+}
+
 function restartGame() {
   initializeGame()
 }
@@ -317,17 +359,27 @@ async function submitResult() {
   submitting.value = true
   
   try {
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    const areaId = props.stageConfig.area_id || 1
+    const stageId = props.stageConfig.stage_id || 1
     
-    console.log('🎯 游戏结果提交成功:', {
+    const result = await gameStore.submitStageResult(areaId, stageId, {
       score: score.value,
       stars: finalStars.value,
-      flipCount: flipCount.value
+      time_spent: totalTime.value - timeLeft.value,
+      flip_count: flipCount.value,
+      combo_max: combo.value
     })
     
+    if (result.success) {
+      console.log('🎯 游戏结果提交成功:', result)
+      // 如果升级了，显示提示
+      if (result.data?.leveled_up) {
+        alert(`🎉 升级了！等级 ${result.data.new_level}`)
+      }
+    }
+    
     // 返回关卡选择页
-    router.push(`/game/area/${props.stageConfig.area_id || 1}/stages`)
+    router.push(`/game/area/${areaId}/stages`)
     
   } catch (error) {
     console.error('提交结果失败:', error)
@@ -343,6 +395,44 @@ function goBack() {
     clearInterval(timer.value)
   }
   router.back()
+}
+
+// 朗读假名（浏览器语音优先，Google TTS备选）
+const jaVoiceCache = ref(null)
+function getJaVoice() {
+  if (jaVoiceCache.value) return jaVoiceCache.value
+  if (!('speechSynthesis' in window)) return null
+  const voices = speechSynthesis.getVoices()
+  jaVoiceCache.value = voices.find(v => v.lang === 'ja-JP') || voices.find(v => v.lang.startsWith('ja')) || null
+  return jaVoiceCache.value
+}
+if ('speechSynthesis' in window) {
+  speechSynthesis.onvoiceschanged = () => { jaVoiceCache.value = null }
+}
+
+function speakKana(text) {
+  if (!text) return
+  
+  const voice = getJaVoice()
+  if (voice && 'speechSynthesis' in window) {
+    speechSynthesis.cancel()
+    const u = new SpeechSynthesisUtterance(text)
+    u.lang = 'ja-JP'
+    u.voice = voice
+    u.rate = 0.8
+    u.pitch = 1.0
+    u.volume = 0.8
+    speechSynthesis.speak(u)
+  } else {
+    // 备选 Google TTS
+    try {
+      const audio = new Audio(
+        `https://translate.google.com/translate_tts?ie=UTF-8&tl=ja&client=tw-ob&q=${encodeURIComponent(text)}`
+      )
+      audio.volume = 0.8
+      audio.play().catch(() => {})
+    } catch (e) {}
+  }
 }
 
 // 生命周期

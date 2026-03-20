@@ -6,6 +6,9 @@ const Home = () => import('@/views/Home.vue')
 const Login = () => import('@/views/auth/Login.vue')
 const Register = () => import('@/views/auth/Register.vue')
 const WorldMap = () => import('@/views/game/WorldMap.vue')
+const GojuonChart = () => import('@/views/game/GojuonChart.vue')
+const KanaCrush = () => import('@/components/games/KanaCrush.vue')
+const VocabBook = () => import('@/views/game/VocabBook.vue')
 const StageSelect = () => import('@/views/game/StageSelect.vue')
 const GamePlay = () => import('@/views/game/GamePlay.vue')
 const Profile = () => import('@/views/user/Profile.vue')
@@ -49,6 +52,24 @@ const router = createRouter({
           path: 'map',
           name: 'worldMap',
           component: WorldMap,
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'gojuon',
+          name: 'gojuonChart',
+          component: GojuonChart,
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'kana-crush',
+          name: 'kanaCrush',
+          component: KanaCrush,
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'vocab-book',
+          name: 'vocabBook',
+          component: VocabBook,
           meta: { requiresAuth: true }
         },
         {

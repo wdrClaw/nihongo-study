@@ -342,42 +342,68 @@ function toggleRecording() {
   }
 }
 
+// 預加載語音列表
+const jaVoice = ref(null)
+function loadVoices() {
+  if (!('speechSynthesis' in window)) return
+  const voices = speechSynthesis.getVoices()
+  // 優先找日語語音
+  jaVoice.value = voices.find(v => v.lang === 'ja-JP')
+    || voices.find(v => v.lang.startsWith('ja'))
+    || null
+  console.log('Available voices:', voices.length, 'Japanese voice:', jaVoice.value?.name || 'none')
+}
+if ('speechSynthesis' in window) {
+  loadVoices()
+  speechSynthesis.onvoiceschanged = loadVoices
+}
+
+// 用 Google Translate TTS 播放日語（免費，無需API key）
+function playWithGoogleTTS(text) {
+  const audio = new Audio(
+    `https://translate.google.com/translate_tts?ie=UTF-8&tl=ja&client=tw-ob&q=${encodeURIComponent(text)}`
+  )
+  audio.onended = () => { isPlaying.value = false }
+  audio.onerror = () => {
+    isPlaying.value = false
+    // Google TTS 也失败，尝试浏览器 SpeechSynthesis
+    playWithSpeechSynthesis(text)
+  }
+  audio.play().catch(() => {
+    isPlaying.value = false
+    playWithSpeechSynthesis(text)
+  })
+}
+
+// 浏览器原生 SpeechSynthesis 备选
+function playWithSpeechSynthesis(text) {
+  if (!('speechSynthesis' in window)) {
+    isPlaying.value = false
+    return
+  }
+  isPlaying.value = true
+  if (!jaVoice.value) loadVoices()
+  speechSynthesis.cancel()
+  
+  const utterance = new SpeechSynthesisUtterance(text)
+  utterance.lang = 'ja-JP'
+  utterance.rate = 0.8
+  if (jaVoice.value) utterance.voice = jaVoice.value
+  utterance.onend = () => { isPlaying.value = false }
+  utterance.onerror = () => { isPlaying.value = false }
+  speechSynthesis.speak(utterance)
+  
+  setTimeout(() => { if (isPlaying.value) isPlaying.value = false }, 5000)
+}
+
 // 播放示範
 function playDemo() {
   if (isPlaying.value || !currentItem.value) return
-
   isPlaying.value = true
   
-  // 使用 Web Speech API TTS
-  if ('speechSynthesis' in window) {
-    const utterance = new SpeechSynthesisUtterance()
-    utterance.text = currentItem.value.hiragana || currentItem.value.word || currentItem.value.sentence
-    utterance.lang = 'ja-JP'
-    utterance.rate = 0.8
-    utterance.pitch = 1
-    
-    utterance.onend = () => {
-      isPlaying.value = false
-    }
-    
-    utterance.onerror = () => {
-      isPlaying.value = false
-      console.warn('TTS播放失敗')
-    }
-    
-    speechSynthesis.speak(utterance)
-  } else {
-    // 備選：使用預錄音頻（如果有的話）
-    if (currentItem.value.audio_url && $refs.demoAudio) {
-      $refs.demoAudio.src = currentItem.value.audio_url
-      $refs.demoAudio.play().catch(() => {
-        isPlaying.value = false
-        console.warn('音頻播放失敗')
-      })
-    } else {
-      isPlaying.value = false
-    }
-  }
+  const text = currentItem.value.hiragana || currentItem.value.word || currentItem.value.sentence
+  // 優先用 Google TTS（跨平台可靠）
+  playWithGoogleTTS(text)
 }
 
 // 計算發音分數

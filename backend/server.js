@@ -17,6 +17,7 @@ import stageRoutes from './src/routes/stage.js';
 import vocabularyRoutes from './src/routes/vocabulary.js';
 import dailyTasksRoutes from './src/routes/daily-tasks.js';
 import testRoutes from './src/routes/test.js';
+import vocabRoutes from './src/routes/vocab.js';
 
 // 加載環境變量
 dotenv.config();
@@ -35,7 +36,7 @@ app.use(helmet({
 }));
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+  origin: true,  // 允许所有来源（开发阶段）
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -73,6 +74,7 @@ app.use('/api/stage', stageRoutes);
 app.use('/api/vocabulary', vocabularyRoutes);
 app.use('/api/daily-tasks', dailyTasksRoutes);
 app.use('/api/test', testRoutes);
+app.use('/api/vocab', vocabRoutes);
 
 // 根路由
 app.get('/', (req, res) => {

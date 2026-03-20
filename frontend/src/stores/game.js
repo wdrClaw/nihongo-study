@@ -38,15 +38,12 @@ export const useGameStore = defineStore('game', {
   getters: {
     // 獲取區域解鎖狀態
     getAreaUnlockStatus: (state) => (areaId) => {
-      if (areaId === 1) return true // 第一個區域默認解鎖
+      if (areaId <= 2) return true // 五十音岛 + 词汇岛 默认解锁
       
-      // 檢查前一個區域是否有足夠的星星解鎖下一區域
+      // 检查前一区域是否至少通关3关（拿到3颗星以上）
       const prevAreaProgress = state.mapProgress[areaId - 1] || {}
       const totalStars = Object.values(prevAreaProgress).reduce((sum, stage) => sum + (stage.stars || 0), 0)
-      
-      // 每個區域需要前一區域至少70%的星星才能解鎖（假設每區域8關，需要約17星）
-      const requiredStars = Math.ceil(8 * 2.1) // 至少需要17星
-      return totalStars >= requiredStars
+      return totalStars >= 3
     },
 
     // 獲取關卡解鎖狀態
@@ -133,6 +130,21 @@ export const useGameStore = defineStore('game', {
         this.setError('加載進度失敗')
         return { success: false }
         
+      } finally {
+        this.setLoading(false)
+      }
+    },
+
+    // 加載區域關卡列表
+    async loadAreaStages(areaId) {
+      try {
+        this.setLoading(true)
+        const response = await api.get(`/stage/area/${areaId}`)
+        return { success: true, stages: response.data.stages || [] }
+      } catch (error) {
+        console.error('加載關卡列表失敗:', error)
+        this.setError('加載關卡列表失敗')
+        return { success: false, stages: [] }
       } finally {
         this.setLoading(false)
       }

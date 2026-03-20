@@ -3,7 +3,7 @@ import axios from 'axios'
 
 // API 基礎配置
 const api = axios.create({
-  baseURL: 'http://localhost:3002/api',
+  baseURL: `http://${window.location.hostname}:3002/api`,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'

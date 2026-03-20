@@ -43,6 +43,10 @@ import { useGameStore } from '@/stores/game'
 
 // 動態導入遊戲組件
 import MatchClear from '@/components/games/MatchClear.vue'
+import KanaCrush from '@/components/games/KanaCrush.vue'
+import KanaWhack from '@/components/games/KanaWhack.vue'
+import VocabCrush from '@/components/games/VocabCrush.vue'
+import VocabRain from '@/components/games/VocabRain.vue'
 import WordBattle from '@/components/games/WordBattle.vue'
 import VoiceDojo from '@/components/games/VoiceDojo.vue'
 import GrammarRunner from '@/components/games/GrammarRunner.vue'
@@ -65,6 +69,9 @@ const stageId = computed(() => parseInt(route.params.stageId))
 // 遊戲組件映射
 const gameComponentMap = {
   'match_clear': MatchClear,
+  'kana_crush': KanaWhack,
+  'vocab_crush': VocabCrush,
+  'vocab_rain': VocabRain,
   'word_battle': WordBattle,
   'voice_dojo': VoiceDojo,
   'grammar_runner': GrammarRunner,

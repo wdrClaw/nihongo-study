@@ -57,7 +57,23 @@
 
     <!-- 关卡列表：竖向卡片列表 -->
     <div v-else class="relative z-10 px-5 py-4 pb-24 space-y-4">
-      
+
+      <!-- 基础知识入口 -->
+      <div v-if="knowledgeEntry"
+           class="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg border-2 border-primary-200 transition-all duration-300 active:scale-[0.98] cursor-pointer"
+           @click="$router.push(knowledgeEntry.route)">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-4">
+            <div class="text-4xl">{{ knowledgeEntry.icon }}</div>
+            <div>
+              <h3 class="text-lg font-bold text-primary-600">{{ knowledgeEntry.title }}</h3>
+              <p class="text-sm text-text-secondary">{{ knowledgeEntry.desc }}</p>
+            </div>
+          </div>
+          <div class="text-2xl text-primary-400 font-bold">→</div>
+        </div>
+      </div>
+
       <div 
         v-for="stage in stages" 
         :key="stage.stage_id"
@@ -203,8 +219,20 @@ const areaMap = {
   6: { name: 'N5试炼塔', description: '最终挑战的高塔' }
 }
 
+// 每个区域的基础知识入口
+const knowledgeMap = {
+  1: { icon: '📖', title: '五十音図', desc: '点击查看完整发音 + 听读练习', route: '/game/gojuon' },
+  2: { icon: '📚', title: '词汇手册', desc: '按分类浏览全部日常词汇', route: '/game/vocab-book' },
+  3: { icon: '📝', title: '语法手册', desc: 'N5基础语法要点速查', route: '/game/grammar-book' },
+  4: { icon: '💬', title: '会话手册', desc: '常用日语对话场景', route: '/game/conversation-book' },
+}
+const knowledgeEntry = computed(() => knowledgeMap[props.areaId] || null)
+
 const gameTypeMap = {
   'match_clear': '假名消消乐',
+  'kana_crush': '打地鼠',
+  'vocab_crush': '词汇消消乐',
+  'vocab_rain': '词汇雨',
   'word_battle': '单词BOSS战', 
   'voice_dojo': '语音道场',
   'grammar_runner': '语法跑酷',
@@ -276,56 +304,17 @@ function goBack() {
   router.push('/game/map')
 }
 
-// 加载关卡列表（模拟数据，实际应该从API获取）
+// 加载关卡列表（从后端 API 获取）
 async function loadStages() {
   try {
     loading.value = true
-    
-    // 模拟API延迟
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    // 模拟关卡数据
-    const mockStages = [
-      {
-        stage_id: 1,
-        name_cn: '基础发音练习',
-        description_cn: '学习あいうえお的正确发音',
-        game_type: 'match_clear',
-        unlocked: true,
-        stars: 3,
-        best_score: 950
-      },
-      {
-        stage_id: 2,
-        name_cn: '假名配对',
-        description_cn: '平假名和片假名的配对练习',
-        game_type: 'word_battle',
-        unlocked: true,
-        stars: 2,
-        best_score: 780
-      },
-      {
-        stage_id: 3,
-        name_cn: '发音挑战',
-        description_cn: '准确发音获得高分',
-        game_type: 'voice_dojo',
-        unlocked: true,
-        stars: 0,
-        best_score: 0
-      },
-      {
-        stage_id: 4,
-        name_cn: '速度测试',
-        description_cn: '在限定时间内完成假名识别',
-        game_type: 'grammar_runner',
-        unlocked: false,
-        stars: 0,
-        best_score: 0
-      }
-    ]
-    
-    stages.value = mockStages
-    
+    const result = await gameStore.loadAreaStages(props.areaId)
+    if (result.success) {
+      stages.value = result.stages
+    } else {
+      console.warn('加载关卡失败')
+      stages.value = []
+    }
   } catch (error) {
     console.error('加载关卡失败:', error)
     stages.value = []
@@ -335,8 +324,5 @@ async function loadStages() {
 }
 
 // 生命周期
-onMounted(() => {
-  console.log('🎯 关卡选择页已加载 - 移动端竖向列表布局')
-  loadStages()
-})
+onMounted(() => loadStages())
 </script>

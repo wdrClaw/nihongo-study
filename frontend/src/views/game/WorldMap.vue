@@ -154,17 +154,17 @@
             <div class="flex items-center space-x-4">
               <div class="text-5xl">🏘️</div>
               <div>
-                <h3 class="text-lg font-bold text-text-primary">单词村</h3>
-                <p class="text-sm text-text-secondary">Day 8-21 • 词汇积累</p>
+                <h3 class="text-lg font-bold text-text-primary">词汇岛</h3>
+                <p class="text-sm text-text-secondary">Day 8-21 • 1000日常词汇</p>
                 <div class="flex items-center space-x-2 mt-2">
                   <div class="flex items-center space-x-1">
-                    <span class="text-accent-500">⭐</span>
-                    <span class="text-sm font-bold text-text-primary">{{ getAreaStars(2) }}/15</span>
+                    <span class="text-accent-500">★</span>
+                    <span class="text-sm font-bold text-text-primary">{{ getAreaStars(2) }}/60</span>
                   </div>
                   <div class="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
                     <div 
                       class="h-full bg-gradient-to-r from-secondary-400 to-secondary-500 rounded-full transition-all duration-700"
-                      :style="{ width: (getAreaStars(2) / 15 * 100) + '%' }"
+                      :style="{ width: (getAreaStars(2) / 60 * 100) + '%' }"
                     ></div>
                   </div>
                 </div>
