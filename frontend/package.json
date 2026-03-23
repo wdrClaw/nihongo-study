@@ -19,6 +19,7 @@
     "axios": "^1.13.6",
     "howler": "^2.2.4",
     "lottie-web": "^5.13.0",
+    "lucide-vue-next": "^0.577.0",
     "pinia": "^3.0.4",
     "pixi-spine": "^4.0.6",
     "pixi.js": "^8.17.0",

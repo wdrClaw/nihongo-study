@@ -2,8 +2,8 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-/* 导入 Google Fonts - 游戏级字体系统 */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Poppins:wght@300;400;500;600;700;800;900&family=ZCOOL+QingKe+HuangYou&display=swap');
+/* 导入 Google Fonts - 中日双语优化 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap');
 
 /* === 游戏UI设计系统 === */
 
@@ -48,7 +48,7 @@
 
 /* 全局字体设定 - 多语言优化 */
 body {
-  font-family: 'Poppins', 'Noto Sans JP', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', 'Noto Sans JP', sans-serif;
   font-feature-settings: 'kern' 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -63,7 +63,7 @@ body {
 }
 
 .text-title-game {
-  font-family: 'ZCOOL QingKe HuangYou', 'Poppins', sans-serif;
+  font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
   font-weight: 700;
 }
 
