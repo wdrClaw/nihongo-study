@@ -1,173 +1,249 @@
 <template>
-  <!-- 移动端全屏引导页 - iPhone 13 Pro Max 优化 -->
-  <div class="min-h-screen bg-gradient-to-br from-background-primary to-background-secondary relative overflow-hidden flex flex-col">
-    
-    <!-- 樱花飘落装饰 -->
-    <div class="bg-sakura absolute inset-0 pointer-events-none z-0"></div>
-    
-    <!-- 顶部 1/3：Logo + 标题 + 副标题 -->
-    <div class="flex-1 flex items-center justify-center px-5 pt-16 pb-8 relative z-10">
-      <div class="text-center w-full max-w-sm">
-        <!-- Logo 区域 - 移动端优化 -->
-        <div class="inline-flex items-center justify-center w-24 h-24 mb-6">
-          <div class="w-full h-full bg-white rounded-full shadow-xl flex items-center justify-center border-4 border-primary-100 relative">
-            <span class="text-5xl animate-float">🌸</span>
-          </div>
-        </div>
+  <div class="landing-v2">
+    <!-- 全屏背景 -->
+    <img src="/assets/landing-v2/bg-landing.png" class="bg" alt="" />
 
-        <!-- 主标题 - 移动端字号 -->
-        <h1 class="text-3xl font-bold mb-4 tracking-wide">
-          <span class="bg-gradient-to-r from-primary-400 to-secondary-500 bg-clip-text text-transparent">
-            Nihongo Quest
-          </span>
-        </h1>
-
-        <!-- 副标题 - 简洁版 -->
-        <p class="text-base text-text-secondary mb-6 leading-relaxed">
-          60天通关 JLPT N5 🎯
-          <br />
-          <span class="text-sm text-text-light mt-1 block">
-            像玩RPG一样学日语！
-          </span>
-        </p>
-
-        <!-- 统计数据 - 移动端布局 -->
-        <div class="grid grid-cols-3 gap-4 mb-8">
-          <div class="text-center">
-            <div class="text-2xl font-bold text-primary-400">800+</div>
-            <div class="text-xs text-text-secondary">单词</div>
-          </div>
-          <div class="text-center">
-            <div class="text-2xl font-bold text-secondary-500">82</div>
-            <div class="text-xs text-text-secondary">语法</div>
-          </div>
-          <div class="text-center">
-            <div class="text-2xl font-bold text-accent-500">6</div>
-            <div class="text-xs text-text-secondary">游戏</div>
-          </div>
-        </div>
-      </div>
+    <!-- 樱花粒子层 -->
+    <div class="sakura-layer">
+      <span v-for="i in 12" :key="i" class="petal" :style="petalStyle(i)">🌸</span>
     </div>
 
-    <!-- 中间：3个特性卡片 - 竖排布局（移动端最佳） -->
-    <div class="flex-1 px-5 pb-8 relative z-10">
-      <div class="w-full max-w-sm mx-auto space-y-4">
-        
-        <!-- 特色卡片1 - 游戏化学习 -->
-        <div class="bg-white rounded-2xl p-6 shadow-lg border border-primary-100 relative overflow-hidden">
-          <div class="flex items-center space-x-4">
-            <div class="text-4xl">🎮</div>
-            <div class="flex-1">
-              <h3 class="text-lg font-bold text-text-primary mb-1">6种游戏模式</h3>
-              <p class="text-sm text-text-secondary">消消乐记单词、语法战斗、语音练习</p>
-            </div>
-          </div>
-        </div>
+    <!-- 内容层 -->
+    <div class="content">
+      <!-- 吉祥物 -->
+      <div class="mascot-area">
+        <img src="/assets/landing-v2/component-mascot.png" class="mascot" alt="龙虾武士" />
+      </div>
 
-        <!-- 特色卡片2 - 冒险地图 -->
-        <div class="bg-white rounded-2xl p-6 shadow-lg border border-secondary-100 relative overflow-hidden">
-          <div class="flex items-center space-x-4">
-            <div class="text-4xl">🗺️</div>
-            <div class="flex-1">
-              <h3 class="text-lg font-bold text-text-primary mb-1">6大冒险区域</h3>
-              <p class="text-sm text-text-secondary">从五十音岛到N5试炼塔的完整路径</p>
-            </div>
-          </div>
-        </div>
+      <!-- 标题 -->
+      <div class="title-area">
+        <img src="/assets/landing-v2/component-title.png" class="title-img" alt="日語冒險" />
+      </div>
 
-        <!-- 特色卡片3 - 学习系统 -->
-        <div class="bg-white rounded-2xl p-6 shadow-lg border border-accent-100 relative overflow-hidden">
-          <div class="flex items-center space-x-4">
-            <div class="text-4xl">📚</div>
-            <div class="flex-1">
-              <h3 class="text-lg font-bold text-text-primary mb-1">完整学习体系</h3>
-              <p class="text-sm text-text-secondary">800个单词、82个语法点，科学规划</p>
-            </div>
-          </div>
-        </div>
-        
+      <!-- 副标题横幅 -->
+      <div class="banner-area">
+        <img src="/assets/landing-v2/component-banner.png" class="banner-img" alt="Nihongo Quest" />
+      </div>
+
+      <!-- 标语 -->
+      <div class="slogan-area">
+        <img src="/assets/landing-v2/component-slogan.png" class="slogan-img" alt="60天掌握日语N5" />
+      </div>
+
+      <!-- 特色卡片 -->
+      <div class="cards-area">
+        <img src="/assets/landing-v2/component-cards.png" class="cards-img" alt="特色功能" />
+      </div>
+
+      <!-- CTA按钮 -->
+      <div class="cta-area" @click="startAdventure">
+        <img src="/assets/landing-v2/component-cta.png" class="cta-img" alt="开始冒险" />
       </div>
     </div>
-
-    <!-- 底部：CTA 按钮 - 全宽大按钮 -->
-    <div class="px-5 pb-8 relative z-10">
-      <div class="w-full max-w-sm mx-auto space-y-4">
-        <!-- 主CTA按钮 -->
-        <router-link
-          to="/auth/register"
-          class="w-full h-[52px] bg-gradient-to-r from-primary-400 to-primary-500 text-white text-base font-bold rounded-2xl shadow-lg transition-all duration-300 flex items-center justify-center touch-target hover:from-primary-500 hover:to-primary-600 hover:shadow-xl hover:-translate-y-1 active:translate-y-0"
-        >
-          <span class="flex items-center">
-            开始日语冒险 
-            <span class="ml-2">🚀</span>
-          </span>
-        </router-link>
-        
-        <!-- 次要按钮 -->
-        <router-link
-          to="/auth/login"
-          class="w-full h-[48px] bg-white text-primary-400 text-base font-semibold rounded-xl border-2 border-primary-200 transition-all duration-300 flex items-center justify-center touch-target hover:bg-primary-50 hover:border-primary-300"
-        >
-          <span class="flex items-center">
-            已有账号登入
-            <span class="ml-2">🎮</span>
-          </span>
-        </router-link>
-        
-        <!-- 额外信息 -->
-        <div class="flex justify-center items-center space-x-6 text-xs text-text-secondary mt-6">
-          <div class="flex items-center space-x-1">
-            <span class="text-success">✅</span>
-            <span>免费使用</span>
-          </div>
-          <div class="flex items-center space-x-1">
-            <span class="text-primary-400">📱</span>
-            <span>手机适配</span>
-          </div>
-          <div class="flex items-center space-x-1">
-            <span class="text-accent-500">🎯</span>
-            <span>专业认证</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
   </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
-// 页面挂载时的处理
-onMounted(() => {
-  console.log('🎌 Nihongo Quest 首页已加载 - 移动端优化版')
-})
+const router = useRouter()
+
+const startAdventure = () => {
+  router.push('/login')
+}
+
+const petalStyle = (i) => {
+  const left = Math.random() * 100
+  const delay = Math.random() * 8
+  const duration = 6 + Math.random() * 6
+  const size = 14 + Math.random() * 10
+  return {
+    left: `${left}%`,
+    animationDelay: `${delay}s`,
+    animationDuration: `${duration}s`,
+    fontSize: `${size}px`,
+    opacity: 0.5 + Math.random() * 0.4,
+  }
+}
 </script>
 
 <style scoped>
-/* 页面特有样式 */
-.count-animation {
-  animation: countUp 2s ease-out forwards;
+.landing-v2 {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #1a0a2e;
 }
 
-@keyframes countUp {
-  from { 
-    opacity: 0; 
-    transform: translateY(20px) scale(0.8); 
+/* 背景图 */
+.bg {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 100%;
+  width: auto;
+  min-width: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* 樱花粒子 */
+.sakura-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.petal {
+  position: absolute;
+  top: -30px;
+  animation: sakuraFall linear infinite;
+}
+
+@keyframes sakuraFall {
+  0% {
+    transform: translateY(-30px) rotate(0deg) translateX(0px);
+    opacity: 0;
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0) scale(1); 
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg) translateX(80px);
+    opacity: 0;
   }
 }
 
-/* 文字阴影效果 */
-.text-shadow {
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+/* 内容层 */
+.content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  height: 100%;
+  padding: 3vh 0 2vh;
 }
 
-/* 鼠标悬浮时的音效提示（可选） */
-.interactive:hover {
-  /* 这里可以添加音效触发 */
+/* 吉祥物 */
+.mascot-area {
+  flex-shrink: 0;
+}
+
+.mascot {
+  width: 35vw;
+  max-width: 180px;
+  height: auto;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+
+  animation: mascotBounce 3s ease-in-out infinite;
+}
+
+@keyframes mascotBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* 标题 */
+.title-area {
+  flex-shrink: 0;
+}
+
+.title-img {
+  width: 75vw;
+  max-width: 360px;
+  height: auto;
+  filter: drop-shadow(0 3px 8px rgba(0,0,0,0.4));
+
+}
+
+/* 副标题横幅 */
+.banner-area {
+  flex-shrink: 0;
+}
+
+.banner-img {
+  width: 65vw;
+  max-width: 300px;
+  height: auto;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+
+}
+
+/* 标语 */
+.slogan-area {
+  flex-shrink: 0;
+}
+
+.slogan-img {
+  width: 60vw;
+  max-width: 280px;
+  height: auto;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+
+}
+
+/* 特色卡片 */
+.cards-area {
+  flex-shrink: 0;
+}
+
+.cards-img {
+  width: 85vw;
+  max-width: 400px;
+  height: auto;
+  filter: drop-shadow(0 3px 8px rgba(0,0,0,0.3));
+
+}
+
+/* CTA按钮 */
+.cta-area {
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.cta-area:hover {
+  transform: scale(1.05);
+}
+
+.cta-area:active {
+  transform: scale(0.95);
+}
+
+.cta-img {
+  width: 50vw;
+  max-width: 240px;
+  height: auto;
+  filter: drop-shadow(0 4px 12px rgba(255,50,50,0.4));
+
+  animation: ctaPulse 2s ease-in-out infinite;
+}
+
+@keyframes ctaPulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 4px 12px rgba(255,50,50,0.4)); }
+  50% { transform: scale(1.03); filter: drop-shadow(0 6px 16px rgba(255,50,50,0.6)); }
+}
+
+/* iPad 8寸触控优先 */
+@media (min-width: 768px) {
+  .mascot { max-width: 220px; }
+  .title-img { max-width: 420px; }
+  .banner-img { max-width: 360px; }
+  .slogan-img { max-width: 340px; }
+  .cards-img { max-width: 480px; }
+  .cta-img { max-width: 280px; }
+  .content { gap: 2vh; }
 }
 </style>
