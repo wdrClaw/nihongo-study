@@ -10,19 +10,13 @@
 
     <!-- 内容层 -->
     <div class="content">
-      <!-- 吉祥物 -->
-      <div class="mascot-area">
+      <!-- 顶部：标题+吉祥物同行 -->
+      <div class="header-row">
+        <div class="header-left">
+          <img src="/assets/landing-v2/component-title.png" class="title-img" alt="日語冒險" />
+          <img src="/assets/landing-v2/component-banner.png" class="banner-img" alt="Nihongo Quest" />
+        </div>
         <img src="/assets/landing-v2/component-mascot.png" class="mascot" alt="龙虾武士" />
-      </div>
-
-      <!-- 标题 -->
-      <div class="title-area">
-        <img src="/assets/landing-v2/component-title.png" class="title-img" alt="日語冒險" />
-      </div>
-
-      <!-- 副标题横幅 -->
-      <div class="banner-area">
-        <img src="/assets/landing-v2/component-banner.png" class="banner-img" alt="Nihongo Quest" />
       </div>
 
       <!-- 标语 -->
@@ -36,8 +30,11 @@
       </div>
 
       <!-- CTA按钮 -->
-      <div class="cta-area" @click="startAdventure">
-        <img src="/assets/landing-v2/component-cta.png" class="cta-img" alt="开始冒险" />
+      <div class="cta-section">
+        <div class="cta-area" @click="startAdventure">
+          <img src="/assets/landing-v2/component-cta.png" class="cta-img" alt="开始冒险" />
+        </div>
+        <p class="login-link" @click="goLogin">— 已有账号？登录 —</p>
       </div>
     </div>
   </div>
@@ -47,10 +44,8 @@
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-
-const startAdventure = () => {
-  router.push('/login')
-}
+const startAdventure = () => router.push('/login')
+const goLogin = () => router.push('/login')
 
 const petalStyle = (i) => {
   const left = Math.random() * 100
@@ -72,12 +67,10 @@ const petalStyle = (i) => {
   position: relative;
   width: 100vw;
   height: 100vh;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   background: #1a0a2e;
 }
 
-/* 背景图 */
 .bg {
   position: absolute;
   top: 0;
@@ -93,36 +86,21 @@ const petalStyle = (i) => {
 /* 樱花粒子 */
 .sakura-layer {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   z-index: 1;
   pointer-events: none;
   overflow: hidden;
 }
-
 .petal {
   position: absolute;
   top: -30px;
   animation: sakuraFall linear infinite;
 }
-
 @keyframes sakuraFall {
-  0% {
-    transform: translateY(-30px) rotate(0deg) translateX(0px);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 0.6;
-  }
-  100% {
-    transform: translateY(100vh) rotate(720deg) translateX(80px);
-    opacity: 0;
-  }
+  0% { transform: translateY(-30px) rotate(0deg) translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 0.6; }
+  100% { transform: translateY(100vh) rotate(720deg) translateX(80px); opacity: 0; }
 }
 
 /* 内容层 */
@@ -132,121 +110,104 @@ const petalStyle = (i) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 100%;
-  padding: 2vh 0 4vh;
-  gap: 1vh;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  justify-content: space-between;
+  height: 100%;
+  padding: 4vh 4vw 3vh;
 }
 
-/* 吉祥物 */
-.mascot-area {
-  flex-shrink: 0;
+/* 顶部：标题+吉祥物同一行 */
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2vw;
+  width: 100%;
 }
-
+.header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5vh;
+}
+.title-img {
+  width: 55vw;
+  max-width: 280px;
+  height: auto;
+  filter: drop-shadow(0 3px 8px rgba(0,0,0,0.4));
+}
+.banner-img {
+  width: 45vw;
+  max-width: 220px;
+  height: auto;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+}
 .mascot {
   width: 28vw;
-  max-width: 150px;
+  max-width: 140px;
   height: auto;
   filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
-
   animation: mascotBounce 3s ease-in-out infinite;
 }
-
 @keyframes mascotBounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
 }
 
-/* 标题 */
-.title-area {
-  flex-shrink: 0;
-}
-
-.title-img {
-  width: 65vw;
+/* 标语 */
+.slogan-img {
+  width: 70vw;
   max-width: 320px;
   height: auto;
-  filter: drop-shadow(0 3px 8px rgba(0,0,0,0.4));
-
-}
-
-/* 副标题横幅 */
-.banner-area {
-  flex-shrink: 0;
-}
-
-.banner-img {
-  width: 65vw;
-  max-width: 300px;
-  height: auto;
   filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
-
-}
-
-/* 标语 */
-.slogan-area {
-  flex-shrink: 0;
-}
-
-.slogan-img {
-  width: 60vw;
-  max-width: 280px;
-  height: auto;
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
-
 }
 
 /* 特色卡片 */
-.cards-area {
-  flex-shrink: 0;
-}
-
 .cards-img {
-  width: 80vw;
-  max-width: 360px;
+  width: 88vw;
+  max-width: 400px;
   height: auto;
   filter: drop-shadow(0 3px 8px rgba(0,0,0,0.3));
-
 }
 
-/* CTA按钮 */
+/* CTA区域 */
+.cta-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1vh;
+}
 .cta-area {
-  flex-shrink: 0;
   cursor: pointer;
   transition: transform 0.2s ease;
 }
-
-.cta-area:hover {
-  transform: scale(1.05);
-}
-
-.cta-area:active {
-  transform: scale(0.95);
-}
-
+.cta-area:hover { transform: scale(1.05); }
+.cta-area:active { transform: scale(0.95); }
 .cta-img {
-  width: 45vw;
-  max-width: 200px;
+  width: 55vw;
+  max-width: 260px;
   height: auto;
-  filter: drop-shadow(0 4px 12px rgba(255,50,50,0.4));
-
+  filter: drop-shadow(0 4px 12px rgba(255,100,100,0.5));
   animation: ctaPulse 2s ease-in-out infinite;
 }
-
 @keyframes ctaPulse {
-  0%, 100% { transform: scale(1); filter: drop-shadow(0 4px 12px rgba(255,50,50,0.4)); }
-  50% { transform: scale(1.03); filter: drop-shadow(0 6px 16px rgba(255,50,50,0.6)); }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
 }
+.login-link {
+  color: rgba(255,255,255,0.7);
+  font-size: 13px;
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+.login-link:hover { color: #fff; }
 
-/* iPad 8寸触控优先 */
+/* iPad 8寸 */
 @media (min-width: 768px) {
-  .mascot { max-width: 220px; }
-  .title-img { max-width: 420px; }
-  .banner-img { max-width: 360px; }
-  .slogan-img { max-width: 340px; }
-  .cards-img { max-width: 480px; }
-  .cta-img { max-width: 280px; }
-  .content { gap: 2vh; }
+  .title-img { max-width: 360px; }
+  .banner-img { max-width: 280px; }
+  .mascot { max-width: 180px; }
+  .slogan-img { max-width: 400px; }
+  .cards-img { max-width: 520px; }
+  .cta-img { max-width: 300px; }
 }
 </style>
