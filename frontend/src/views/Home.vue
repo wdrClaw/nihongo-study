@@ -72,7 +72,8 @@ const petalStyle = (i) => {
   position: relative;
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   background: #1a0a2e;
 }
 
@@ -131,9 +132,11 @@ const petalStyle = (i) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-evenly;
-  height: 100%;
-  padding: 3vh 0 2vh;
+  min-height: 100%;
+  padding: 2vh 0 4vh;
+  gap: 1vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* 吉祥物 */
@@ -142,8 +145,8 @@ const petalStyle = (i) => {
 }
 
 .mascot {
-  width: 35vw;
-  max-width: 180px;
+  width: 28vw;
+  max-width: 150px;
   height: auto;
   filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
 
@@ -161,8 +164,8 @@ const petalStyle = (i) => {
 }
 
 .title-img {
-  width: 75vw;
-  max-width: 360px;
+  width: 65vw;
+  max-width: 320px;
   height: auto;
   filter: drop-shadow(0 3px 8px rgba(0,0,0,0.4));
 
@@ -200,8 +203,8 @@ const petalStyle = (i) => {
 }
 
 .cards-img {
-  width: 85vw;
-  max-width: 400px;
+  width: 80vw;
+  max-width: 360px;
   height: auto;
   filter: drop-shadow(0 3px 8px rgba(0,0,0,0.3));
 
@@ -223,8 +226,8 @@ const petalStyle = (i) => {
 }
 
 .cta-img {
-  width: 50vw;
-  max-width: 240px;
+  width: 45vw;
+  max-width: 200px;
   height: auto;
   filter: drop-shadow(0 4px 12px rgba(255,50,50,0.4));
 
